@@ -9,12 +9,12 @@ class Ingredient:
         self.type = ingredient_type
         self.name = name
         self.price = price
-
+#Получить цену
     def get_price(self) -> float:
         return self.price
-
+#Получить Имя
     def get_name(self) -> str:
         return self.name
-
+#Получить Тип
     def get_type(self) -> str:
         return self.type
