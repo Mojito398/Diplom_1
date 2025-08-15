@@ -1,0 +1,44 @@
+stages:
+  - test
+  - notify
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+cache:
+  key: "${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}"
+  paths:
+    - .cache/pip
+
+test:
+  stage: test
+  image: python:3.11
+  before_script:
+    - python -V
+    - pip install --upgrade pip
+  script:
+    - pip install -r requirements.txt
+    - pytest -v --junitxml=report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+    paths:
+      - report.xml
+      - "Test report/"
+    expire_in: 1 week
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
+notify:
+  stage: notify
+  image: python:3.11
+  needs: ["test"]
+  script:
+    - pip install requests
+    - python ci/notify.py
+  when: always
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
